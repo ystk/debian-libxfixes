@@ -1,3 +1,9 @@
+libxfixes (1:4.0.5-1+squeeze1) oldstable-security; urgency=low
+
+  * CVE-2013-1983
+
+ -- Moritz Muehlenhoff <jmm@debian.org>  Tue, 14 May 2013 20:48:34 +0000
+
 libxfixes (1:4.0.5-1) unstable; urgency=low
 
   * New upstream release.

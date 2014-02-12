@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2011 Red Hat, Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -46,6 +47,7 @@
 #include <config.h>
 #endif
 #include "Xfixesint.h"
+#include <limits.h>
 
 void
 XFixesSelectCursorInput (Display	*dpy,
@@ -73,9 +75,9 @@ XFixesGetCursorImage (Display *dpy)
     XFixesExtDisplayInfo		*info = XFixesFindDisplay (dpy);
     xXFixesGetCursorImageAndNameReq	*req;
     xXFixesGetCursorImageAndNameReply	rep;
-    int					npixels;
-    int					nbytes_name;
-    int					nbytes, nread, rlength;
+    size_t				npixels;
+    size_t				nbytes_name;
+    size_t				nbytes, nread, rlength;
     XFixesCursorImage			*image;
     char				*name;
 
@@ -100,19 +102,24 @@ XFixesGetCursorImage (Display *dpy)
     }
     npixels = rep.width * rep.height;
     nbytes_name = rep.nbytes;
-    /* reply data length */
-    nbytes = (long) rep.length << 2;
-    /* bytes of actual data in the reply */
-    nread = (npixels << 2) + nbytes_name;
-    /* size of data returned to application */
-    rlength = (sizeof (XFixesCursorImage) + 
-	       npixels * sizeof (unsigned long) +
-	       nbytes_name + 1);
+    if ((rep.length < (INT_MAX >> 2)) &&
+	npixels < (((INT_MAX >> 3) - sizeof (XFixesCursorImage) - 1)
+	           - nbytes_name)) {
+	/* reply data length */
+	nbytes = (size_t) rep.length << 2;
+	/* bytes of actual data in the reply */
+	nread = (npixels << 2) + nbytes_name;
+	/* size of data returned to application */
+	rlength = (sizeof (XFixesCursorImage) +
+		   npixels * sizeof (unsigned long) +
+		   nbytes_name + 1);
 
-    image = (XFixesCursorImage *) Xmalloc (rlength);
+	image = Xmalloc (rlength);
+    } else
+	image = NULL;
     if (!image)
     {
-	_XEatData (dpy, nbytes);
+	_XEatDataWords(dpy, rep.length);
 	UnlockDisplay (dpy);
 	SyncHandle ();
 	return NULL;
@@ -190,7 +197,7 @@ XFixesGetCursorName (Display *dpy, Cursor cursor, Atom *atom)
 	_XReadPad(dpy, name, (long)rep.nbytes);
 	name[rep.nbytes] = '\0';
     } else {
-	_XEatData(dpy, (unsigned long) (rep.nbytes + 3) & ~3);
+	_XEatDataWords(dpy, rep.length);
 	name = (char *) NULL;
     }
     UnlockDisplay(dpy);
@@ -273,4 +280,63 @@ XFixesShowCursor (Display *dpy, Window win)
     req->window = win;
     UnlockDisplay (dpy);
     SyncHandle ();
+}
+
+PointerBarrier
+XFixesCreatePointerBarrier(Display *dpy, Window w, int x1, int y1,
+			   int x2, int y2, int directions,
+			   int num_devices, int *devices)
+{
+    XFixesExtDisplayInfo *info = XFixesFindDisplay (dpy);
+    xXFixesCreatePointerBarrierReq *req;
+    PointerBarrier barrier;
+    int extra = 0;
+
+    XFixesCheckExtension (dpy, info, 0);
+    if (info->major_version < 5)
+	return 0;
+
+    if (num_devices)
+	extra = (((2 * num_devices) + 3) / 4) * 4;
+
+    LockDisplay (dpy);
+    GetReqExtra (XFixesCreatePointerBarrier, extra, req);
+    req->reqType = info->codes->major_opcode;
+    req->xfixesReqType = X_XFixesCreatePointerBarrier;
+    barrier = req->barrier = XAllocID (dpy);
+    req->window = w;
+    req->x1 = x1;
+    req->y1 = y1;
+    req->x2 = x2;
+    req->y2 = y2;
+    req->directions = directions;
+    if ((req->num_devices = num_devices)) {
+	int i;
+	CARD16 *devs = (CARD16 *)(req + 1);
+	for (i = 0; i < num_devices; i++)
+	    devs[i] = (CARD16)(devices[i]);
+    }
+
+    UnlockDisplay (dpy);
+    SyncHandle();
+    return barrier;
+}
+
+void
+XFixesDestroyPointerBarrier(Display *dpy, PointerBarrier b)
+{
+    XFixesExtDisplayInfo *info = XFixesFindDisplay (dpy);
+    xXFixesDestroyPointerBarrierReq *req;
+
+    XFixesSimpleCheckExtension (dpy, info);
+    if (info->major_version < 5)
+	return;
+
+    LockDisplay (dpy);
+    GetReq (XFixesDestroyPointerBarrier, req);
+    req->reqType = info->codes->major_opcode;
+    req->xfixesReqType = X_XFixesDestroyPointerBarrier;
+    req->barrier = b;
+    UnlockDisplay (dpy);
+    SyncHandle();
 }

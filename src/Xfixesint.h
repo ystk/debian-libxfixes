@@ -24,8 +24,6 @@
 #ifndef _XFIXESINT_H_
 #define _XFIXESINT_H_
 
-#define NEED_EVENTS
-#define NEED_REPLIES
 #include <stdio.h>
 #include <X11/Xlib.h>
 #include <X11/Xlibint.h>
@@ -63,5 +61,19 @@ XFixesFindDisplay (Display *dpy);
 
 #define XFixesSimpleCheckExtension(dpy,i) \
   if (!XFixesHasExtension(i)) { return; }
+
+#ifndef HAVE__XEATDATAWORDS
+#include <X11/Xmd.h>  /* for LONG64 on 64-bit platforms */
+#include <limits.h>
+
+static inline void _XEatDataWords(Display *dpy, unsigned long n)
+{
+# ifndef LONG64
+    if (n >= (ULONG_MAX >> 2))
+        _XIOError(dpy);
+# endif
+    _XEatData (dpy, n << 2);
+}
+#endif
 
 #endif /* _XFIXESINT_H_ */

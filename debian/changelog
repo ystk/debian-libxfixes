@@ -1,3 +1,66 @@
+libxfixes (1:5.0-4+deb7u1) wheezy-security; urgency=high
+
+  * integer overflow in XFixesGetCursorImage() [CVE-2013-1983]
+
+ -- Julien Cristau <jcristau@debian.org>  Tue, 14 May 2013 10:12:48 +0200
+
+libxfixes (1:5.0-4) unstable; urgency=low
+
+  * Team upload.
+  * Don't include debug symbols for the udeb in libxfixes3-dbg.
+
+ -- Julien Cristau <jcristau@debian.org>  Sun, 12 Jun 2011 00:16:17 +0200
+
+libxfixes (1:5.0-3) unstable; urgency=low
+
+  * Team upload.
+
+  [ Steve Langasek ]
+  * Build for multiarch.
+
+  [ Julien Cristau ]
+  * Bump Standards-Version to 3.9.2.
+
+ -- Julien Cristau <jcristau@debian.org>  Sat, 11 Jun 2011 16:01:20 +0200
+
+libxfixes (1:5.0-2) unstable; urgency=low
+
+  [ Julien Cristau ]
+  * libxfixes3.symbols: no need to use a version for symbols that are there
+    forever (or close enough).
+  * Upload to unstable.
+
+  [ Cyril Brulebois ]
+  * Remove automake and libtool build-dep, they're pulled in by
+    dh-autoreconf.
+
+ -- Julien Cristau <jcristau@debian.org>  Fri, 29 Apr 2011 22:48:31 +0200
+
+libxfixes (1:5.0-1) experimental; urgency=low
+
+  * New upstream release:
+    - Pointer barriers.
+  * Bump x11proto-fixes-dev build-dep accordingly.
+  * Bump x11proto-fixes-dev dependency for libxfixes3-dev.
+  * Wrap Depends fields.
+  * Add debian/libxfixes3.symbols file.
+  * Pass -c4 to dh_makeshlibs to ensure updates are noticed.
+  * Update symbols file, and bump shlibs for new symbols:
+    - XFixesCreatePointerBarrier
+    - XFixesDestroyPointerBarrier
+  * Install manpages through dh_install.
+  * Use --fail-missing instead of --list-missing in dh_install for
+    additional safety.
+  * Switch to dh:
+    - Use debhelper 8.
+    - Use dh-autoreconf.
+  * Remove xsfbs accordingly.
+  * Update Uploaders list. Thanks, David!
+  * Add a placeholder series file.
+  * Bump Standards-Version to 3.9.1 (no changes needed).
+
+ -- Cyril Brulebois <kibi@debian.org>  Wed, 09 Mar 2011 00:02:42 +0100
+
 libxfixes (1:4.0.5-1) unstable; urgency=low
 
   * New upstream release.

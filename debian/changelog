@@ -1,3 +1,19 @@
+libxfixes (1:5.0.1-2) sid; urgency=low
+
+  * Mark libxfixes-dev as Multi-arch: same (closes: #677657).
+
+ -- Julien Cristau <jcristau@debian.org>  Sat, 12 Jul 2014 17:26:54 +0200
+
+libxfixes (1:5.0.1-1) sid; urgency=low
+
+  * New upstream release.
+  * Remove useless dh_auto_install override.  debian/tmp is the default destdir
+    since we have more than one deb.
+  * Bump debhelper build-dep to 9 (to match compat).
+  * Disable silent build rules.
+
+ -- Julien Cristau <jcristau@debian.org>  Sun, 30 Jun 2013 14:34:26 +0200
+
 libxfixes (1:5.0-4+deb7u1) wheezy-security; urgency=high
 
   * integer overflow in XFixesGetCursorImage() [CVE-2013-1983]

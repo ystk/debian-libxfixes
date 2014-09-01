@@ -3,9 +3,8 @@
 PACKAGE = libxfixes3
 SHLIBS  = 1:5.0
 
-# Install in debian/tmp to retain control through dh_install:
-override_dh_auto_install:
-	dh_auto_install --destdir=debian/tmp
+override_dh_auto_configure:
+	dh_auto_configure -- --disable-silent-rules
 
 # Kill *.la files, and forget no-one:
 override_dh_install:

@@ -1,3 +1,9 @@
+libxfixes (1:5.0.1-2+deb8u1) jessie; urgency=high
+
+  * Integer overflow on illegal server response (CVE-2016-7944)
+
+ -- Julien Cristau <jcristau@debian.org>  Sat, 07 Jan 2017 16:30:24 +0100
+
 libxfixes (1:5.0.1-2) sid; urgency=low
 
   * Mark libxfixes-dev as Multi-arch: same (closes: #677657).
